@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Laplace</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        #header {
+            padding: 20px;
+            font-weight: bold;
+        }
+        #header-room {
+            padding: 20px;
+            font-weight: bold;
+        }
+        #video-wrapper {
+            text-align: center;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        #localVideo {
+            max-width: 100vw;
+            max-height: 80vh;
+            box-shadow: 0 10px 25px 0 rgba(0,0,0,0.50);
+        }
+        #output {
+            max-width: 90vw;
+            padding: 20px;
+            overflow: scroll;
+            font-size: 10px;
+            margin: 0;
+        }    </style></head>
+<body>
+    <div id="header" class="float-left">Laplace Stream</div>
+    <div id="header-room" class="float-right"># room_id</div>
+    <div id="header"></div>
+    <div id="video-wrapper">
+        <video id="localVideo" autoplay playsinline control="false">
+        </video>
+    </div>
+
+    <pre id="output"></pre>
+
+    <script>
+        const pcs = {};
+        let roomID;
+        let mediaStream;
+        let microphoneStream; // deprecated
+        const socket = new WebSocket("{{.Url}}");
+
+        socket.onmessage = async function (e) {
+            output.innerHTML += "[+] " + e.data + "\n";
+            try {
+                const jsonData = JSON.parse(e.data);
+                if (jsonData.Type === "newRoom") {
+                    await newRoom(jsonData.Value);
+                } else if (jsonData.Type === "newSession") {
+                    await newSession(jsonData.SessionID);
+                } else if (jsonData.Type === "addCalleeIceCandidate") {
+                    await addCalleeIceCandidate(jsonData.SessionID, JSON.parse(jsonData.Value));
+                } else if (jsonData.Type === "gotAnswer") {
+                    await gotAnswer(jsonData.SessionID, JSON.parse(jsonData.Value));
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        socket.onopen = async function () {
+            output.innerHTML += "[-] Status: Connected\n";
+            await initMedia();
+            // await initPeerConnection();
+        };
+
+        async function initMedia() {
+            console.log('initMedia');
+            mediaStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+            const videoElement = document.querySelector('video#localVideo');
+            videoElement.srcObject = mediaStream;
+        }
+
+        async function newRoom(rID) {
+            roomID = rID;
+            output.innerHTML += "[-] RoomID: " + rID + "\n";
+            document.querySelector('#header-room').innerHTML = '# ' + rID;
+        }
+
+        async function newSession(sessionID) {
+            console.log('newSession', sessionID);
+            const iceConfig = {
+                iceServers: [{
+                    urls: [
+                        // 'stun:stun1.l.google.com:19302',
+                        // 'stun:stun2.l.google.com:19302',
+                    ],
+                }],
+                iceCandidatePoolSize: 10,
+            };
+            pcs[sessionID] = new RTCPeerConnection(iceConfig);
+            pcs[sessionID].onicecandidate = e => {
+                console.log('pc.onicecandidate', e);
+                if (!e.candidate) {
+                    console.log('pc.onicecandidate', 'got final candidate!');
+                    return;
+                }
+                socket.send(JSON.stringify({
+                    Type: "addCallerIceCandidate",
+                    SessionID: sessionID,
+                    Value: JSON.stringify(e.candidate),
+                }))
+            };
+            pcs[sessionID].oniceconnectionstatechange = () => {
+                console.log('pc.oniceconnectionstatechange', pcs[sessionID].iceConnectionState);
+                if (pcs[sessionID].iceConnectionState === 'disconnected') {
+                    output.innerHTML += "[-] Disconnected with Peer " + sessionID + "\n";
+                    console.log("Disconnected with Peer " + sessionID + "\n");
+                    pcs[sessionID].close();
+                    pcs[sessionID] = null;
+                }
+            };
+
+            mediaStream.getTracks().forEach(track => {
+                pcs[sessionID].addTrack(track, mediaStream);
+            });
+
+            const offer = await pcs[sessionID].createOffer();
+            console.log('pc.createOffer', offer);
+            await pcs[sessionID].setLocalDescription(offer);
+            socket.send(JSON.stringify({
+                Type: "gotOffer",
+                SessionID: sessionID,
+                Value: JSON.stringify(offer),
+            }));
+        }
+
+        async function addCalleeIceCandidate(sessionID, v) {
+            console.log('addCalleeIceCandidate', sessionID, v);
+            return pcs[sessionID].addIceCandidate(v);
+        }
+
+        async function gotAnswer(sessionID,v) {
+            console.log('gotAnswer', sessionID, v);
+            return pcs[sessionID].setRemoteDescription(new RTCSessionDescription(v));
+        }
+    </script>
+</body>
+</html>
