@@ -1,0 +1,64 @@
+#video-wrapper {
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#video-wrapper video {
+    max-width: 90vw;
+    max-height: 70vh;
+    box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.50);
+}
+
+#stream-page-ui {
+    display: none;
+}
+
+#video-container {
+    display: none;
+}
+
+#output {
+    padding: 20px 0;
+    overflow: scroll;
+    font-size: 10px;
+    margin: 0;
+    max-height: 400px;
+}
+
+#output::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+}
+
+#qrcode {
+    width: 128px;
+    margin: 0 auto;
+}
+
+#footer {
+    margin-bottom: 20px;
+}
+
+.header-room {
+    font-size: 1rem;
+    color: #999999;
+}
+
+.panel {
+    max-width: 400px;
+    padding: 20px;
+    margin: 20px auto;
+}
+
+.panel .separator {
+    height: 50px;
+}
+
+.help-text {
+    font-size: 0.8rem;
+}
+
+.container-small {
+    max-width: 760px;
+}

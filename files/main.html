@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Laplace</title>
+    <link rel="stylesheet" href="/static/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/main.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <span class="navbar-brand">Laplace</span>
+    <span class="navbar-brand header-room" id="room-text"></span>
+</nav>
+
+<div class="container">
+    <div class="panel" id="panel">
+        <h4>About Laplace</h4>
+        <p class="help-text">
+            Laplace is a project to enable screen sharing directly via browser,
+            made possible using WebRTC for low latency peer-to-peer connections,
+            and websocket implemented in golang for WebRTC signaling.
+        </p>
+
+        <div class="separator"></div>
+
+        <h4>Start new stream</h4>
+        <p class="help-text">
+            By clicking the button below, you will create a new streaming room.
+            Share the room ID to your peers.
+            The room ID will be available on the top-right position on this page.
+        </p>
+        <button type="button" class="btn btn-outline-secondary btn-block" onclick="doStream()">Stream</button>
+
+        <div class="separator"></div>
+
+        <h4>Join stream</h4>
+        <p class="help-text">
+            Input the room ID and click the button below to join a streaming room.
+            Get the room ID from your streaming peer.
+            The room ID is available on the top right on their page.
+        </p>
+        <form id="joinForm">
+            <div class="form-group">
+                <input id="inputRoomID" type="text" class="form-control" placeholder="Enter room ID" required>
+            </div>
+            <button type="submit" class="btn btn-outline-secondary btn-block" value="submit">Join</button>
+        </form>
+    </div>
+</div>
+
+<div class="container-fluid" id="video-container">
+    <div id="video-wrapper">
+        <video id="mainVideo" autoplay playsinline controls>
+        </video>
+    </div>
+</div>
+
+<br><br>
+
+<div class="container container-small" id="stream-page-ui">
+    <div class="row">
+        <div class="col-md-9">
+            <h4>Join the Room</h4>
+            <p class="help-text">
+                Share the room ID to your peers.
+                The room ID will be available on the top right position on this page.
+                They can also join with this link:
+            </p>
+            <a href="#" id="join-link"></a>
+            <br><br>
+        </div>
+        <div class="col-md-3">
+            <div id="qrcode"></div>
+        </div>
+    </div>
+    <hr>
+    <pre id="output"></pre>
+</div>
+
+<div class="container">
+    <hr>
+    <div class="text-center small" id="footer">
+        <span>Laplace Project by Adam Jordan.</span>
+        <a href="https://github.com/adamyordan/laplace">Source Code</a>
+    </div>
+</div>
+
+<script src="/static/qrcode.min.js"></script>
+<script src="/static/main.js"></script>
+</body>
+</html>
