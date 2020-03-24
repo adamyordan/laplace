@@ -258,6 +258,7 @@ async function startStream(displayMediaOption, pcOption) {
         leaveRoom()
     }
     LaplaceVar.ui.video.srcObject = LaplaceVar.mediaStream;
+    LaplaceVar.ui.video.muted = true; // prevent duplicate sound played
 
     print('[+] Initiate websocket');
     LaplaceVar.socket = new WebSocket(getWebsocketUrl() + '/ws_serve');

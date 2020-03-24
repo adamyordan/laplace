@@ -53,17 +53,12 @@
 <div class="container container-small" id="stream-serve-page-ui">
     <div class="config-panel">
         <div class="row">
-            <div class="col-md-9">
+            <div class="col">
                 <h4>Stream Configuration</h4>
                 <p class="help-text">
                     Choose the configuration preset, then click the start stream button.
                     For advance user, you can modify the option directly, please note that it may incur errors.
                 </p>
-            </div>
-            <div class="col-md-3 text-md-right">
-                <div class="form-group">
-                    <button type="button" class="btn btn-lg btn-dark btn-block-xs-only" id="btnStartStream">Start stream</button>
-                </div>
             </div>
         </div>
         <div class="row">
@@ -89,8 +84,11 @@
                 </div>
             </div>
         </div>
+        <hr>
+        <button type="button" class="btn btn-dark btn-block-xs-only" id="btnStartStream">Start stream</button>
+        <span>&nbsp;</span>
+        <button type="button" class="btn btn-outline-dark btn-block-xs-only" id="btnStream" onclick="leaveRoom()">Cancel</button>
     </div>
-    <button type="button" class="btn btn-outline-dark btn-block-xs-only" id="btnStream" onclick="leaveRoom()">Cancel</button>
 </div>
 
 <div class="container-fluid" id="video-container">
