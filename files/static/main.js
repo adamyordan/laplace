@@ -107,7 +107,7 @@ function updateRoomUI() {
             width: 128,
             height: 128,
         });
-        LaplaceVar.ui.roomText.innerHTML = '#' + LaplaceVar.roomID;
+        LaplaceVar.ui.roomText.innerHTML = '<b>RoomID:</b> #' + LaplaceVar.roomID;
         LaplaceVar.ui.joinLinkText.innerHTML = joinUrl;
         LaplaceVar.ui.joinLinkText.href = joinUrl;
     }

@@ -17,35 +17,34 @@
 <div class="container">
     <div class="panel" id="panel">
         <p class="help-text">
-            <b>Laplace</b> is an open-source project to enable screen sharing directly via browser,
-            made possible using WebRTC for low latency peer-to-peer connections,
+            <b>Laplace</b> is an open-source project to enable screen sharing directly via browser.
+            Made possible using WebRTC for low latency peer-to-peer connections,
             and websocket implemented in golang for WebRTC signaling.
             <a href="https://github.com/adamyordan/laplace">Read more</a>
         </p>
 
         <div class="separator"></div>
 
-        <h4>Start new stream</h4>
+        <h4>Start sharing your screen</h4>
         <p class="help-text">
-            By clicking the button below, you will create a new streaming room.
-            Share the room ID to your peers.
-            The room ID will be available on the top-right position on this page.
+            Click the button below to create a new streaming room,
+            where you can share your screen with your peers.
+            A RoomID will be generated, and you can share the RoomID to your peers.
         </p>
-        <button type="button" class="btn btn-outline-dark btn-block" id="btnStream">Stream</button>
+        <button type="button" class="btn btn-dark btn-block" id="btnStream">Start sharing</button>
 
         <div class="separator"></div>
 
-        <h4>Join stream</h4>
+        <h4>Join streaming room</h4>
         <p class="help-text">
-            Input the room ID and click the button below to join a streaming room.
-            Get the room ID from your streaming peer.
-            The room ID is available on the top right on their page.
+            Enter a RoomID to join the streaming room.
+            You can get the RoomID from your peer that is doing a screen sharing.
         </p>
         <form id="joinForm">
             <div class="form-group">
                 <input id="inputRoomID" type="text" class="form-control form-control-lg text-center" placeholder="Enter room ID" required>
             </div>
-            <button type="submit" class="btn btn-outline-dark btn-block" value="submit">Join</button>
+            <button type="submit" class="btn btn-dark btn-block" value="submit">Join</button>
         </form>
     </div>
 </div>
@@ -54,10 +53,12 @@
     <div class="config-panel">
         <div class="row">
             <div class="col">
-                <h4>Stream Configuration</h4>
+                <h4>Screen sharing configuration</h4>
                 <p class="help-text">
-                    Choose the configuration preset, then click the start stream button.
-                    For advance user, you can modify the option directly, please note that it may incur errors.
+                    For most people, using the default "balanced" preset is enough,
+                    then click the "Start sharing" button to start.
+                    For the curious, You may also choose configuration preset that will affect the performance and quality of the streaming.
+                    For advance user, you can modify the options inside the textbox directly, please note that it may incur errors.
                 </p>
             </div>
         </div>
@@ -89,6 +90,20 @@
         <span>&nbsp;</span>
         <button type="button" class="btn btn-outline-dark btn-block-xs-only" id="btnStream" onclick="leaveRoom()">Cancel</button>
     </div>
+
+    <br><br>
+    <p class="help-text">
+        <b>Some notes</b><br>
+        After clicking the "Start stream" button, if your device is supported, you may be asked to choose which screen you want to share.
+        <br>
+        As of now, mobile devices (Android & iOS) are usually not supported for screen sharing.
+        <br>
+        Sharing system audio is tested to be working only with latest Google Chrome running in Windows OS.
+        <br>
+        Remember to tick the "Share audio" checkbox.
+        <br>
+        In case the streaming does not work, reload the page, the WebRTC maybe unstable.
+    </p>
 </div>
 
 <div class="container-fluid" id="video-container">
@@ -103,11 +118,10 @@
 <div class="container container-small" id="stream-page-ui">
     <div class="row">
         <div class="col-md-9">
-            <h4>Join the Room</h4>
+            <h4>How to Join this Room</h4>
             <p class="help-text">
-                Share the room ID to your peers.
-                The room ID will be available on the top right position on this page.
-                They can also join with this link:
+                You can share the RoomID to your peers (it is on the top-right position on this page).
+                They can also join with the following link or QRCode:
             </p>
             <a href="#" id="join-link" target="_blank"></a>
             <br><br>
@@ -118,7 +132,8 @@
     </div>
     <hr>
     <div>
-        <button type="button" class="btn btn-outline-secondary btn-block-xs-only" id="btnStream" onclick="leaveRoom()">Leave Room</button>
+        <h6>More Actions</h6>
+        <button type="button" class="btn btn-dark btn-block-xs-only" id="btnStream" onclick="leaveRoom()">Leave Room</button>
     </div>
     <hr>
     <pre id="output"></pre>
