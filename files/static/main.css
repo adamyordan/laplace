@@ -8,9 +8,14 @@
     max-width: 90vw;
     max-height: 70vh;
     box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.50);
+    outline: none;
 }
 
 #stream-page-ui {
+    display: none;
+}
+
+#stream-serve-page-ui {
     display: none;
 }
 
@@ -61,4 +66,33 @@
 
 .container-small {
     max-width: 760px;
+}
+
+.config-panel {
+    border: 1px solid #e2e3e5;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.config-panel label {
+    font-size: 0.8rem;
+    margin: 2px;
+}
+
+.config-panel select {
+    font-size: 0.8rem;
+}
+
+.config-panel input, .config-panel textarea {
+    font-size: 0.8rem;
+    font-family: Consolas, monospace;
+}
+
+@media (max-width: 576px) {
+    .btn-block-xs-only {
+        display: block;
+        width: 100%;
+    }
 }

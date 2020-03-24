@@ -31,7 +31,7 @@
             Share the room ID to your peers.
             The room ID will be available on the top-right position on this page.
         </p>
-        <button type="button" class="btn btn-outline-secondary btn-block" onclick="doStream()">Stream</button>
+        <button type="button" class="btn btn-outline-secondary btn-block" id="btnStream">Stream</button>
 
         <div class="separator"></div>
 
@@ -48,6 +48,49 @@
             <button type="submit" class="btn btn-outline-secondary btn-block" value="submit">Join</button>
         </form>
     </div>
+</div>
+
+<div class="container container-small" id="stream-serve-page-ui">
+    <div class="config-panel">
+        <div class="row">
+            <div class="col-md-9">
+                <h4>Stream Configuration</h4>
+                <p class="help-text">
+                    Choose the configuration preset, then click the start stream button.
+                    For advance user, you can modify the option directly, please note that it may incur errors.
+                </p>
+            </div>
+            <div class="col-md-3 text-md-right">
+                <div class="form-group">
+                    <button type="button" class="btn btn-lg btn-secondary btn-block-xs-only" id="btnStartStream">Start stream</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for=optionPreset>Preset</label>
+                    <br>
+                    <select name="optionPreset" id="inputOptionPreset" class="form-control"></select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for=displayMediaOption>DisplayMedia option</label>
+                    <textarea name="displayMediaOption" id="inputDisplayMediaOption" cols="30" rows="5" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for=RTPPeerConnection>RTPPeerConnection option</label>
+                    <textarea name="RTPPeerConnectionOption" id="inputRTPPeerConnectionOption" cols="30" rows="5" class="form-control"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn btn-secondary btn-block-xs-only" id="btnStream" onclick="leaveRoom()">Cancel</button>
 </div>
 
 <div class="container-fluid" id="video-container">
@@ -68,12 +111,16 @@
                 The room ID will be available on the top right position on this page.
                 They can also join with this link:
             </p>
-            <a href="#" id="join-link"></a>
+            <a href="#" id="join-link" target="_blank"></a>
             <br><br>
         </div>
         <div class="col-md-3">
             <div id="qrcode"></div>
         </div>
+    </div>
+    <hr>
+    <div>
+        <button type="button" class="btn btn-outline-secondary btn-block-xs-only" id="btnStream" onclick="leaveRoom()">Leave Room</button>
     </div>
     <hr>
     <pre id="output"></pre>

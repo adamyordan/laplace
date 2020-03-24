@@ -4,6 +4,7 @@ import (
     "github.com/gorilla/websocket"
     "log"
     "net/http"
+    "time"
 )
 
 type WSMessage struct {
@@ -15,6 +16,20 @@ type WSMessage struct {
 var upgrader = websocket.Upgrader{
     ReadBufferSize:  1024,
     WriteBufferSize: 1024,
+}
+
+func sendHeartBeatWS(ticker *time.Ticker, conn *websocket.Conn, quit chan struct{}) {
+    for {
+        select {
+        case <- ticker.C:
+            _ = conn.WriteJSON(WSMessage{
+                Type: "beat",
+            })
+        case <- quit:
+            log.Println("heartbeat stopped")
+            return
+        }
+    }
 }
 
 func GetHttp() *http.ServeMux {
@@ -29,22 +44,35 @@ func GetHttp() *http.ServeMux {
     server.HandleFunc("/ws_serve", func(writer http.ResponseWriter, request *http.Request) {
         conn, _ := upgrader.Upgrade(writer, request, nil)
         room := NewRoom(conn)
-        _ = conn.WriteJSON(WSMessage{
+        if err := conn.WriteJSON(WSMessage{
             SessionID: "",
             Type:      "newRoom",
             Value:     room.ID,
-        })
+        }); err != nil {
+            log.Println("newSessionWriteJsonError.", err)
+            return
+        }
 
         go func(r *Room) {
+            ticker := time.NewTicker(10 * time.Second)
+            quit := make(chan struct{})
+            defer func() {
+                ticker.Stop()
+                _ = room.CallerConn.Close()
+                close(quit)
+            }()
+
+            go sendHeartBeatWS(ticker, conn, quit)
+
             //noinspection ALL
             defer room.CallerConn.Close()
             for {
                 var msg WSMessage
-                if err := conn.ReadJSON(&msg); err != nil {
+                if err := room.CallerConn.ReadJSON(&msg); err != nil {
                     log.Println("websocketError.", err)
                     return
                 }
-                log.Println(msg)
+                //log.Println(msg)
                 s := room.GetSession(msg.SessionID)
                 if s == nil {
                     log.Println("session nil.", msg.SessionID)
@@ -54,7 +82,9 @@ func GetHttp() *http.ServeMux {
                 } else if msg.Type == "gotOffer" {
                     s.Offer = msg.Value
                 }
-                _ = s.CalleeConn.WriteJSON(msg)
+                if err := s.CalleeConn.WriteJSON(msg); err != nil {
+                    log.Println("serveEchoWriteJsonError.", err)
+                }
             }
         }(room)
     })
@@ -68,18 +98,31 @@ func GetHttp() *http.ServeMux {
         }
 
         room := GetRoom(ids[0])
+        if room == nil {
+            _ = conn.WriteJSON(WSMessage{
+                Type: "roomNotFound",
+            })
+            return
+        }
         session := room.NewSession(conn)
 
-        _ = room.CallerConn.WriteJSON(WSMessage{
+        if err := room.CallerConn.WriteJSON(WSMessage{
             SessionID: session.ID,
             Type:      "newSession",
             Value:     session.ID,
-        })
-        _ = conn.WriteJSON(WSMessage{
+        }); err != nil {
+            log.Println("callerWriteJsonError.", err)
+            return
+        }
+
+        if err := conn.WriteJSON(WSMessage{
             SessionID: session.ID,
             Type:      "newSession",
             Value:     session.ID,
-        })
+        }); err != nil {
+            log.Println("calleeWriteJsonError.", err)
+            return
+        }
 
         go func(s *StreamSession) {
             //noinspection ALL
@@ -90,14 +133,16 @@ func GetHttp() *http.ServeMux {
                     log.Println("websocketError.", err)
                     return
                 }
-                log.Println(msg)
+                //log.Println(msg)
                 if msg.SessionID == s.ID {
                     if msg.Type == "addCalleeIceCandidate" {
                         s.CalleeIceCandidates = append(s.CalleeIceCandidates, msg.Value)
                     } else if msg.Type == "gotAnswer" {
                         s.Answer = msg.Value
                     }
-                    _ = s.CallerConn.WriteJSON(msg)
+                    if err := s.CallerConn.WriteJSON(msg); err != nil {
+                        log.Println("connectEchoWriteJsonError.", err)
+                    }
                 }
             }
         }(session)
