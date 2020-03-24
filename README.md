@@ -33,7 +33,7 @@ This solution also solves the server cost problem, since the expensive operation
 The server is only needed for serving frontends and for WebRTC signaling.
 
 
-## Possible Use Cases
+### Possible Use Cases
 
 - Game streaming from PC to mobile devices.
 - Collaborative work where you need to share your screen with remote coworkers.
