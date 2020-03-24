@@ -60,6 +60,13 @@ func GetHttp() *http.ServeMux {
                 ticker.Stop()
                 _ = room.CallerConn.Close()
                 close(quit)
+                RemoveRoom(r.ID)
+                for sID, s := range r.Sessions {
+                    _ = s.CalleeConn.WriteJSON(WSMessage{
+                        Type: "roomClosed",
+                        SessionID: sID,
+                    })
+                }
             }()
 
             go sendHeartBeatWS(ticker, conn, quit)

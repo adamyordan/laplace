@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Laplace</title>
     <link rel="stylesheet" href="/static/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/main.css">
+    <link rel="stylesheet" href="/static/main.css?v=0.0.3">
 </head>
 <body>
 
@@ -16,11 +16,11 @@
 
 <div class="container">
     <div class="panel" id="panel">
-        <h4>About Laplace</h4>
         <p class="help-text">
-            Laplace is a project to enable screen sharing directly via browser,
+            <b>Laplace</b> is an open-source project to enable screen sharing directly via browser,
             made possible using WebRTC for low latency peer-to-peer connections,
             and websocket implemented in golang for WebRTC signaling.
+            <a href="https://github.com/adamyordan/laplace">Read more</a>
         </p>
 
         <div class="separator"></div>
@@ -31,7 +31,7 @@
             Share the room ID to your peers.
             The room ID will be available on the top-right position on this page.
         </p>
-        <button type="button" class="btn btn-outline-secondary btn-block" id="btnStream">Stream</button>
+        <button type="button" class="btn btn-outline-dark btn-block" id="btnStream">Stream</button>
 
         <div class="separator"></div>
 
@@ -43,9 +43,9 @@
         </p>
         <form id="joinForm">
             <div class="form-group">
-                <input id="inputRoomID" type="text" class="form-control" placeholder="Enter room ID" required>
+                <input id="inputRoomID" type="text" class="form-control form-control-lg text-center" placeholder="Enter room ID" required>
             </div>
-            <button type="submit" class="btn btn-outline-secondary btn-block" value="submit">Join</button>
+            <button type="submit" class="btn btn-outline-dark btn-block" value="submit">Join</button>
         </form>
     </div>
 </div>
@@ -62,7 +62,7 @@
             </div>
             <div class="col-md-3 text-md-right">
                 <div class="form-group">
-                    <button type="button" class="btn btn-lg btn-secondary btn-block-xs-only" id="btnStartStream">Start stream</button>
+                    <button type="button" class="btn btn-lg btn-dark btn-block-xs-only" id="btnStartStream">Start stream</button>
                 </div>
             </div>
         </div>
@@ -90,7 +90,7 @@
             </div>
         </div>
     </div>
-    <button type="button" class="btn btn-secondary btn-block-xs-only" id="btnStream" onclick="leaveRoom()">Cancel</button>
+    <button type="button" class="btn btn-outline-dark btn-block-xs-only" id="btnStream" onclick="leaveRoom()">Cancel</button>
 </div>
 
 <div class="container-fluid" id="video-container">
@@ -135,6 +135,6 @@
 </div>
 
 <script src="/static/qrcode.min.js"></script>
-<script src="/static/main.js"></script>
+<script src="/static/main.js?v=0.0.3"></script>
 </body>
 </html>

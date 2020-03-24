@@ -251,21 +251,30 @@ async function startStream(displayMediaOption, pcOption) {
 
     print('[+] Initiate media: capture display media');
     // noinspection JSUnresolvedFunction
-    LaplaceVar.mediaStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOption);
+    try {
+        LaplaceVar.mediaStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOption);
+    } catch {
+        alert('Streaming from this device is not supported. \n\nGoogle reference: getDisplayMedia');
+        leaveRoom()
+    }
     LaplaceVar.ui.video.srcObject = LaplaceVar.mediaStream;
 
     print('[+] Initiate websocket');
     LaplaceVar.socket = new WebSocket(getWebsocketUrl() + '/ws_serve');
+    LaplaceVar.socket.onerror = function(e) {
+        alert('WebSocket error');
+        leaveRoom();
+    };
     LaplaceVar.socket.onopen = async function () {
         print("[+] Connected to websocket");
     };
     LaplaceVar.socket.onmessage = async function (e) {
-        print("[+] Received websocket message: " + JSON.stringify(e.data));
         try {
             const jsonData = JSON.parse(e.data);
-            if (jsonData.Type === "beat") {
-                // nop
-            } if (jsonData.Type === "newRoom") {
+            if (jsonData.Type !== 'beat') {
+                print("[+] Received websocket message: " + JSON.stringify(e.data));
+            }
+            if (jsonData.Type === "newRoom") {
                 await newRoom(jsonData.Value);
             } else if (jsonData.Type === "newSession") {
                 await newSessionStream(jsonData.SessionID, pcOption);
@@ -358,19 +367,30 @@ async function doJoin(roomID) {
 
     print('[+] Initiate websocket');
     LaplaceVar.socket = new WebSocket(getWebsocketUrl() + "/ws_connect?id=" + LaplaceVar.roomID);
+    LaplaceVar.socket.onerror = function(e) {
+        alert('WebSocket error');
+        leaveRoom();
+    };
     LaplaceVar.socket.onopen = async function () {
         print("[+] Connected to websocket");
     };
     LaplaceVar.socket.onmessage = async function (e) {
-        print("[+] Received websocket message: " + JSON.stringify(e.data));
         try {
             const jsonData = JSON.parse(e.data);
+            if (jsonData.Type !== 'beat') {
+                print("[+] Received websocket message: " + JSON.stringify(e.data));
+            }
             if (jsonData.Type === "newSession") {
                 await newSessionJoin(jsonData.SessionID);
             } else if (jsonData.Type === "addCallerIceCandidate") {
                 await addCallerIceCandidate(jsonData.SessionID, JSON.parse(jsonData.Value));
             } else if (jsonData.Type === "gotOffer") {
                 await gotOffer(jsonData.SessionID, JSON.parse(jsonData.Value));
+            } else if (jsonData.Type === 'roomNotFound') {
+                alert('Room not found');
+                leaveRoom();
+            } else if (jsonData.Type === 'roomClosed') {
+                alert('Room closed');
             }
         } catch (e) {
             print("[!] ERROR: " + e);

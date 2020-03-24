@@ -45,6 +45,10 @@ func newRoomID() string {
     return id
 }
 
+func RemoveRoom(id string) {
+    roomMap[id] = nil
+}
+
 func (room *Room) GetSession(id string) *StreamSession {
     return room.Sessions[id]
 }
