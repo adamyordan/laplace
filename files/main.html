@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Laplace</title>
     <link rel="stylesheet" href="/static/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/main.css?v=0.0.4">
+    <link rel="stylesheet" href="/static/main.css?v=0.0.5">
 </head>
 <body>
 
 <nav class="navbar">
-    <span class="navbar-brand">Laplace</span>
+    <a class="navbar-brand text-dark" href="/">Laplace</a>
     <span class="navbar-brand header-room" id="room-text"></span>
 </nav>
 
@@ -132,7 +132,21 @@
     </div>
     <hr>
     <div>
-        <h6>More Actions</h6>
+        <h6>Status</h6>
+        <table class="table table-borderless table-sm table-meta">
+            <tr>
+                <td>Number of connections:</td>
+                <td id="statusNumConn">0</td>
+            </tr>
+            <tr>
+                <td>Connected peers:</td>
+                <td id="statusPeers"></td>
+            </tr>
+            <tr>
+                <td>Ping:</td>
+                <td id="statusPing">0 ms</td>
+            </tr>
+        </table>
         <button type="button" class="btn btn-dark btn-block-xs-only" id="btnStream" onclick="leaveRoom()">Leave Room</button>
     </div>
     <hr>
@@ -148,6 +162,6 @@
 </div>
 
 <script src="/static/qrcode.min.js"></script>
-<script src="/static/main.js?v=0.0.4"></script>
+<script src="/static/main.js?v=0.0.5"></script>
 </body>
 </html>

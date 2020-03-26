@@ -74,10 +74,13 @@ const preset = {
     },
 };
 
-
 const LaplaceVar = {
     ui: {},
 };
+
+function avg(arr) {
+    return (arr.reduce((a, b) => a + b, 0) / arr.length) | 0
+}
 
 function print(s) {
     LaplaceVar.ui.output.innerHTML += s + '\n';
@@ -125,6 +128,9 @@ function initUI() {
     LaplaceVar.ui.qrcode = document.getElementById("qrcode");
     LaplaceVar.ui.panel = document.getElementById('panel');
     LaplaceVar.ui.roomText = document.getElementById('room-text');
+    LaplaceVar.ui.statusNumConn = document.getElementById('statusNumConn');
+    LaplaceVar.ui.statusPeers = document.getElementById('statusPeers');
+    LaplaceVar.ui.statusPing = document.getElementById('statusPing');
     LaplaceVar.ui.selectOptionPreset = document.getElementById('inputOptionPreset');
     LaplaceVar.ui.streamPageUI = document.getElementById('stream-page-ui');
     LaplaceVar.ui.streamServePageUI = document.getElementById('stream-serve-page-ui');
@@ -170,6 +176,19 @@ function initUI() {
     print("[+] Page loaded");
 }
 
+function updateStatusUIStream() {
+    LaplaceVar.status.peers = Object.keys(LaplaceVar.pcs).map(s => s.split('$')[1]);
+    LaplaceVar.status.numConn = LaplaceVar.status.peers.length;
+    LaplaceVar.ui.statusPeers.innerHTML = LaplaceVar.status.peers
+        .map(s => `${s} (${LaplaceVar.pings[LaplaceVar.roomID + '$' + s]} ms)`).join(', ');
+    LaplaceVar.ui.statusNumConn.innerHTML = LaplaceVar.status.numConn;
+}
+
+function updateStatusUIJoin() {
+    LaplaceVar.ui.statusNumConn.innerHTML = LaplaceVar.status.numConn;
+    LaplaceVar.ui.statusPeers.innerHTML = LaplaceVar.status.peers.map(s => LaplaceVar.sessionID.endsWith(s) ? s + ' (you)' : s).join(', ');
+}
+
 function getWebsocketUrl() {
     if (window.location.protocol === "https:") {
         return `wss://${window.location.host}`
@@ -205,13 +224,49 @@ async function newSessionStream(sessionID, pcOption) {
         if (LaplaceVar.pcs[sessionID].iceConnectionState === 'disconnected') {
             print("[-] Disconnected with a Peer " + sessionID);
             LaplaceVar.pcs[sessionID].close();
-            LaplaceVar.pcs[sessionID] = null;
+            delete LaplaceVar.pcs[sessionID];
+            delete LaplaceVar.dataChannels[sessionID];
+            delete LaplaceVar.pings[sessionID];
+            delete LaplaceVar.pingHistories[sessionID];
+            updateStatusUIStream();
         }
     };
+    updateStatusUIStream();
+    LaplaceVar.dataChannels[sessionID] = LaplaceVar.pcs[sessionID].createDataChannel('ping');
+    LaplaceVar.dataChannels[sessionID].addEventListener('open', () => {
+        print('[+] Start ping interval: ', sessionID);
+        LaplaceVar.pingHistories[sessionID] = [];
+        LaplaceVar.pingIntervals[sessionID] = window.setInterval(() => {
+            const now = new Date().getTime();
+            LaplaceVar.dataChannels[sessionID].send('ping ' + now.toString());
+            LaplaceVar.dataChannels[sessionID].send('status ' + JSON.stringify(LaplaceVar.status));
+        }, 5000);
+    });
+    LaplaceVar.dataChannels[sessionID].addEventListener('close', () => {
+        print('[+] Clear ping interval: ', sessionID);
+        window.clearInterval(LaplaceVar.pingIntervals[sessionID]);
+    });
+    LaplaceVar.dataChannels[sessionID].addEventListener('message', e => {
+        if (e.data.startsWith('ping')) {
+            LaplaceVar.dataChannels[sessionID].send('pong' + e.data.slice(4));
+        } else if (e.data.startsWith('pong')) {
+            const now = new Date().getTime();
+            const then = parseInt(e.data.slice(4));
+            if (!isNaN(then)) {
+                LaplaceVar.pingHistories[sessionID].push(now - then);
+                if (LaplaceVar.pingHistories[sessionID].length > 3) {
+                    LaplaceVar.pingHistories[sessionID].shift()
+                }
+                LaplaceVar.pings[sessionID] = avg(LaplaceVar.pingHistories[sessionID]);
+                updateStatusUIStream();
+            }
+        }
+    });
 
     LaplaceVar.mediaStream.getTracks().forEach(track => {
-        LaplaceVar.pcs[sessionID].addTrack(track, LaplaceVar.mediaStream);
+        senLaplaceVar.pcs[sessionID].addTrack(track, LaplaceVar.mediaStream);
     });
+
 
     print('[+] Creating offer');
     const offer = await LaplaceVar.pcs[sessionID].createOffer({
@@ -246,6 +301,14 @@ async function doStream() {
 
 async function startStream(displayMediaOption, pcOption) {
     LaplaceVar.pcs = {}; // contains RTCPeerConnections
+    LaplaceVar.dataChannels = {};
+    LaplaceVar.pings = {};
+    LaplaceVar.pingHistories = {};
+    LaplaceVar.pingIntervals = {};
+    LaplaceVar.status = {
+        numConn: 0,
+        peers: [],
+    };
 
     updateRoomUI();
 
@@ -317,15 +380,52 @@ async function newSessionJoin(sID) {
         }
     };
     LaplaceVar.pc.ontrack = event => {
-        print('[+] Debug pc.ontrack: ' + JSON.stringify(event.streams[0].getTracks()));
-        // // does not work on safarigit
+        // print('[+] Debug pc.ontrack: ' + JSON.stringify(event.track));
+        // /* does not work on safari */
         // event.streams[0].getTracks().forEach(track => {
         //     print('[+] Debug addTrack ' + JSON.stringify(track));
         //     LaplaceVar.mediaStream.addTrack(track)
         // });
-        LaplaceVar.ui.video.srcObject = event.streams[0];
-        LaplaceVar.ui.video.play();
-    }
+        LaplaceVar.mediaStream.addTrack(event.track);
+        LaplaceVar.ui.video.srcObject = LaplaceVar.mediaStream;
+        try {
+            LaplaceVar.ui.video.play();
+        } catch {}
+    };
+    LaplaceVar.pc.addEventListener('datachannel', e => {
+        LaplaceVar.dataChannel = e.channel;
+        LaplaceVar.dataChannel.addEventListener('open', () => {
+            print('[+] Start ping interval');
+            LaplaceVar.pingHistory = [];
+            LaplaceVar.pingInterval = window.setInterval(() => {
+                const now = new Date().getTime();
+                LaplaceVar.dataChannel.send('ping ' + now.toString());
+            }, 1000);
+        });
+        LaplaceVar.dataChannel.addEventListener('close', () => {
+            print('[+] Clear ping interval');
+            clearInterval(LaplaceVar.pingInterval);
+        });
+        LaplaceVar.dataChannel.addEventListener('message', e => {
+            if (e.data.startsWith('ping')) {
+                LaplaceVar.dataChannel.send('pong' + e.data.slice(4));
+            } else if (e.data.startsWith('pong')) {
+                const now = new Date().getTime();
+                const then = parseInt(e.data.slice(4));
+                if (!isNaN(then)) {
+                    LaplaceVar.pingHistory.push(now - then);
+                    if (LaplaceVar.pingHistory.length > 3) {
+                        LaplaceVar.pingHistory.shift()
+                    }
+                    LaplaceVar.ping = avg(LaplaceVar.pingHistory);
+                    LaplaceVar.ui.statusPing.innerHTML = LaplaceVar.ping + ' ms';
+                }
+            } else if (e.data.startsWith('status')) {
+                LaplaceVar.status = JSON.parse(e.data.slice(7));
+                updateStatusUIJoin();
+            }
+        });
+    });
 }
 
 async function addCallerIceCandidate(sID, v) {
@@ -359,6 +459,10 @@ async function doJoin(roomID) {
     }
     // normalize roomID starting with #
     LaplaceVar.roomID = LaplaceVar.roomID.startsWith('#') ? LaplaceVar.roomID.slice(1) : LaplaceVar.roomID;
+    LaplaceVar.status = {
+        numConn: 0,
+        peers: [],
+    };
 
     updateRoomUI();
 

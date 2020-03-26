@@ -89,6 +89,14 @@
     font-family: Consolas, monospace;
 }
 
+.table-meta {
+    font-size: 12px;
+}
+
+.table-meta td:first-child {
+    width: 150px;
+}
+
 @media (max-width: 576px) {
     .btn-block-xs-only {
         display: block;

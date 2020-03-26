@@ -8,6 +8,8 @@ Made possible using WebRTC for low latency peer-to-peer connections, and WebSock
 
 For demo, you can visit https://laplace.adamjordan.id/
 
+![Website screenshot](./doc/screenshot-website.png)
+
 
 ## Motivation
 
