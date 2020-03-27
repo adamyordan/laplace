@@ -3,10 +3,12 @@
 Laplace is an open-source project to enable screen sharing directly via browser.
 Made possible using WebRTC for low latency peer-to-peer connections, and WebSocket implemented in golang for WebRTC signaling.
 
+![Laplace for gaming](./doc/laplace-for-gaming.png)
+
 
 ## Demo
 
-For demo, you can visit https://laplace.adamjordan.id/
+For demo, you can visit https://laplace.madeby.monster/
 
 ![Website screenshot](./doc/screenshot-website.png)
 
