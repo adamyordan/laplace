@@ -155,7 +155,7 @@ function initUI() {
     };
 
     for (const presetName of Object.keys(preset)) {
-        const optionElement = document.createElement('option')
+        const optionElement = document.createElement('option');
         optionElement.appendChild(document.createTextNode(presetName));
         optionElement.value = presetName;
         LaplaceVar.ui.selectOptionPreset.appendChild(optionElement);
@@ -264,7 +264,7 @@ async function newSessionStream(sessionID, pcOption) {
     });
 
     LaplaceVar.mediaStream.getTracks().forEach(track => {
-        senLaplaceVar.pcs[sessionID].addTrack(track, LaplaceVar.mediaStream);
+        LaplaceVar.pcs[sessionID].addTrack(track, LaplaceVar.mediaStream);
     });
 
 
@@ -313,8 +313,8 @@ async function startStream(displayMediaOption, pcOption) {
     updateRoomUI();
 
     print('[+] Initiate media: capture display media');
-    // noinspection JSUnresolvedFunction
     try {
+        // noinspection JSUnresolvedFunction
         LaplaceVar.mediaStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOption);
     } catch {
         alert('Streaming from this device is not supported. \n\nGoogle reference: getDisplayMedia');
@@ -325,7 +325,7 @@ async function startStream(displayMediaOption, pcOption) {
 
     print('[+] Initiate websocket');
     LaplaceVar.socket = new WebSocket(getWebsocketUrl() + '/ws_serve');
-    LaplaceVar.socket.onerror = function(e) {
+    LaplaceVar.socket.onerror = () => {
         alert('WebSocket error');
         leaveRoom();
     };
@@ -472,7 +472,7 @@ async function doJoin(roomID) {
 
     print('[+] Initiate websocket');
     LaplaceVar.socket = new WebSocket(getWebsocketUrl() + "/ws_connect?id=" + LaplaceVar.roomID);
-    LaplaceVar.socket.onerror = function(e) {
+    LaplaceVar.socket.onerror = () => {
         alert('WebSocket error');
         leaveRoom();
     };
