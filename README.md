@@ -3,10 +3,12 @@
 Laplace is an open-source project to enable screen sharing directly via browser.
 Made possible using WebRTC for low latency peer-to-peer connections, and WebSocket implemented in golang for WebRTC signaling.
 
-![Laplace for gaming](./doc/laplace-for-gaming.png)
+> Demo video: https://youtu.be/E8cUaPrAlzE
+
+[![Laplace for gaming](./doc/laplace-for-gaming.png)](https://youtu.be/E8cUaPrAlzE)
 
 
-## Demo
+## Try Demo
 
 For demo, you can visit https://laplace.madeby.monster/
 
@@ -17,27 +19,25 @@ For demo, you can visit https://laplace.madeby.monster/
 
 There are already possible solutions to share your computer screen, e.g. TeamViewer.
 But most of them require installations of software or plugins.
-
 What Laplace provides is a simple solution to this problem.
 For users wanting to share their screen, all they need to do is to open a website page with their browsers, clicking some buttons, then share some session ID with their peers.
 No installation or registration required.
 
-### Solving the latency problem
+#### Solving the latency problem
 
 This project also serves as a proof-of-concept (PoC) for screen sharing capability directly in browsers based on WebRTC.
 Using WebRTC, real-time communication is made possible through peer-to-peer connections.
 This proves to be very useful in solving one of the biggest problems is screen streaming: **Latency**. 
-
 The latency represents how long the delay is from the source to transmit to the remote client.
 If you notice, this latency problem is usually highlighted by game streaming services, since gameplay relies heavily on the interactivity of inputs and outputs.
 
 
-### Low server cost 
+#### Low server cost 
 This solution also solves the server cost problem, since the expensive operations (encoding and transmission) are done on client browsers.
 The server is only needed for serving frontends and for WebRTC signaling.
 
 
-### Possible Use Cases
+#### Possible Use Cases
 
 - Game streaming from PC to mobile devices.
 - Collaborative work where you need to share your screen with remote coworkers.
@@ -54,7 +54,7 @@ $ cd laplace && go build -o laplace main.go
 $ ./laplace --help
 ```
 
-Pull the pre-built docker image
+OR, pull the pre-built docker image
 
 ```bash
 $ docker pull adamyordan/laplace
@@ -87,7 +87,7 @@ $ ./laplace
 2020/03/25 01:01:10 Listening on TLS: 0.0.0.0:443
 ```
 
-You can then open https://localhost/ to view Laplace page.
+You can then open https://localhost:443/ to view Laplace page.
 You may need to add certificate exceptions. In Chrome, you can type `thisisunsafe`.
 
 
