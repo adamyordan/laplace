@@ -11,7 +11,7 @@ import (
 
 func main() {
 	addr := flag.String("addr", "0.0.0.0:443", "Listen address")
-	tls := flag.Bool("tls", true, "Use TLS")
+	noTls := flag.Bool("no-tls", false, "Don't use TLS")
 	certFile := flag.String("certFile", "files/server.crt", "TLS cert file")
 	keyFile := flag.String("keyFile", "files/server.key", "TLS key file")
 	flag.Parse()
@@ -19,7 +19,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	server := core.GetHttp()
 
-	if *tls {
+	if !*noTls {
 		log.Println("Listening on TLS:", *addr)
 		if err := http.ListenAndServeTLS(*addr, *certFile, *keyFile, server); err != nil {
 			log.Fatalln(err)
