@@ -11,7 +11,7 @@ import (
 
 func main() {
 	addr := flag.String("addr", "0.0.0.0:443", "Listen address")
-	tls := flag.Bool("tls", true, "Use TLS")
+	tls := flag.Bool("tls", false, "Use TLS")
 	certFile := flag.String("certFile", "files/server.crt", "TLS cert file")
 	keyFile := flag.String("keyFile", "files/server.key", "TLS key file")
 	flag.Parse()
