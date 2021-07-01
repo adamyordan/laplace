@@ -18,16 +18,18 @@ type Barrier struct {
 
 // CreateBarrierSession Command to run "barrier.barrierc --debug INFO -f 192.168.0.175"
 func (b *Barrier)CreateBarrierSession() error {
-
 	// Checks if barrier client exists
-	if err := DetectBarrier(); err != nil {
-		return err
-	}
+	//if err := DetectBarrier(); err != nil {
+	//	return err
+	//}
 
-	cmd := exec.Command("barrier.barrierc " ,b.IPAddress)
-	err := cmd.Start()
-	if err != nil {
-		return err
+	cmd := exec.Command("barrier.barrierc" ,b.IPAddress)
+	if err := cmd.Start(); err != nil {
+		_, err := cmd.StderrPipe()
+		if err != nil {
+			return err
+		}
+
 	}
 	// Saves the state of the command in the struct
 	b.Process = cmd
@@ -45,14 +47,9 @@ func (b *Barrier)DeleteBarrierSession() error {
 
 // DetectBarrier This function ensures that the server has barrier client installed
 func DetectBarrier() error {
-	cmd := exec.Command("barrier.barrierc","-h")
-	if err := cmd.Start(); err != nil {
+	_, err := exec.LookPath("barrier.barrierc")
+	if err != nil {
 		return err
 	}
-
-	if err := cmd.Wait(); err != nil {
-		return err
-	}
-
 	return nil
 }
