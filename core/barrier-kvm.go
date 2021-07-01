@@ -18,10 +18,10 @@ type Barrier struct {
 
 // CreateBarrierSession Command to run "barrier.barrierc --debug INFO -f 192.168.0.175"
 func (b *Barrier)CreateBarrierSession() error {
-	// Checks if barrier client exists
-	//if err := DetectBarrier(); err != nil {
-	//	return err
-	//}
+	//Checks if barrier client exists
+	if err := DetectBarrier(); err != nil {
+		return err
+	}
 
 	cmd := exec.Command("barrier.barrierc" ,b.IPAddress)
 	if err := cmd.Start(); err != nil {
@@ -39,9 +39,11 @@ func (b *Barrier)CreateBarrierSession() error {
 // DeleteBarrierSession Deletes barrier client session running
 func (b *Barrier)DeleteBarrierSession() error {
 	// Halts the process
-	if err := b.Process.Wait(); err != nil {
-		return err
+	cmd := exec.Command("pkill" ,"barrierc")
+	if err := cmd.Run(); err != nil {
+	      return err
 	}
+
 	return nil
 }
 

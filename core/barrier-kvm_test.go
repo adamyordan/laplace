@@ -1,6 +1,9 @@
 package core
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 // To run this test ensure you have barrier
 // installed
@@ -17,6 +20,9 @@ func TestBarrier_CreateBarrierSession_DeleteBarrierSession(t *testing.T) {
 	if err := testIP.CreateBarrierSession(); err != nil {
 		t.Error()
 	}
+	// Create delay
+	time.Sleep(20 * time.Second)
+
 	if err := testIP.DeleteBarrierSession(); err != nil {
 		t.Error()
 	}

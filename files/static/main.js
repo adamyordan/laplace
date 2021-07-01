@@ -94,8 +94,11 @@ function getStreamUrl() {
     return `${getBaseUrl()}/?stream=1`;
 }
 
-function getJoinUrl(roomID) {
-    return `${getBaseUrl()}/?id=${roomID}`;
+function getJoinUrl(roomID,BarrierIP="") {
+    if(BarrierIP == ""){
+        return `${getBaseUrl()}/?id=${roomID}`;
+    }
+    return `${getBaseUrl()}/?id=${roomID}&barrierip=${BarrierIP}`;
 }
 
 function updateRoomUI() {
@@ -136,13 +139,22 @@ function initUI() {
     LaplaceVar.ui.streamServePageUI = document.getElementById('stream-serve-page-ui');
     LaplaceVar.ui.video = document.getElementById('mainVideo');
     LaplaceVar.ui.videoContainer = document.getElementById('video-container');
+    LaplaceVar.ui.barrierIP = document.getElementById('barrierIP')
 
     LaplaceVar.ui.joinForm.onsubmit = async e => {
         e.preventDefault();
         LaplaceVar.roomID = LaplaceVar.ui.inputRoomID.value;
-        window.history.pushState('', '', getJoinUrl(LaplaceVar.roomID));
-        await doJoin(LaplaceVar.roomID);
+        LaplaceVar.barrierIP = LaplaceVar.ui.barrierIP.value;
+        // Check if the ip address for barrier is given
+        if(LaplaceVar.barrierIP == "") {
+            window.history.pushState('', '', getJoinUrl(LaplaceVar.roomID));
+        }
+        else {
+            window.history.pushState('', '', getJoinUrl(LaplaceVar.roomID,LaplaceVar.barrierIP));
+        }
+        await doJoin(LaplaceVar.roomID,LaplaceVar.barrierIP);
     };
+
     LaplaceVar.ui.btnStream.onclick = async () => {
         window.history.pushState('', '', getStreamUrl());
         await doStream();
@@ -451,7 +463,7 @@ async function gotOffer(sID, v) {
     }))
 }
 
-async function doJoin(roomID) {
+async function doJoin(roomID,BarrierIP = "") {
     if (roomID) {
         LaplaceVar.roomID = roomID;
     } else {
@@ -471,7 +483,12 @@ async function doJoin(roomID) {
     LaplaceVar.ui.video.srcObject = LaplaceVar.mediaStream;
 
     print('[+] Initiate websocket');
-    LaplaceVar.socket = new WebSocket(getWebsocketUrl() + "/ws_connect?id=" + LaplaceVar.roomID);
+    if (BarrierIP == "") {
+        LaplaceVar.socket = new WebSocket(getWebsocketUrl() + "/ws_connect?id=" + LaplaceVar.roomID);
+    } else {
+        LaplaceVar.socket = new WebSocket(getWebsocketUrl() + "/ws_connect?id=" + LaplaceVar.roomID + "&barrierip="+BarrierIP);
+    }
+
     LaplaceVar.socket.onerror = () => {
         alert('WebSocket error');
         leaveRoom();

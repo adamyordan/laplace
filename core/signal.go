@@ -69,6 +69,11 @@ func GetHttp() *http.ServeMux {
                 }
             }()
 
+            // Close the barrier session
+            if r.BarrierSession != nil {
+                r.BarrierSession.DeleteBarrierSession()
+            }
+
             go sendHeartBeatWS(ticker, conn, quit)
 
             //noinspection ALL
@@ -100,6 +105,7 @@ func GetHttp() *http.ServeMux {
         conn, _ := upgrader.Upgrade(writer, request, nil)
 
         ids, ok := request.URL.Query()["id"]
+
         if !ok || ids[0] == "" {
             return
         }
@@ -112,6 +118,19 @@ func GetHttp() *http.ServeMux {
             return
         }
         session := room.NewSession(conn)
+
+        ip, ok := request.URL.Query()["barrierip"]
+
+        if ok || ip[0] != "" {
+
+            //Declaring struct
+            var barriersession *Barrier
+            barriersession.IPAddress = ip[0]
+            // Creates a barrier session
+            barriersession.CreateBarrierSession()
+
+            room.BarrierSession = barriersession
+        }
 
         if err := room.CallerConn.WriteJSON(WSMessage{
             SessionID: session.ID,

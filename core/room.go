@@ -9,6 +9,7 @@ type Room struct {
     ID         string
     Sessions   map[string]*StreamSession
     CallerConn *websocket.Conn
+    BarrierSession  *Barrier
 }
 
 type StreamSession struct {
