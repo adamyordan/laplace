@@ -46,7 +46,23 @@ The server is only needed for serving frontends and for WebRTC signaling.
 
 ## Installation
 
-Build from source
+
+### Installation required to share keyboard and mouse
+To do this we ensure that the client either has has a IPV6 
+address or a public IPV4 address. 
+We use the use the popular open repository known as (Barrier KVM)[https://github.com/debauchee/barrier]. 
+
+#### Barrier KVM build status 
+|Platform       |Build Status|
+|            --:|:--         |
+|Linux          |[![Build Status](https://dev.azure.com/debauchee/Barrier/_apis/build/status/debauchee.barrier?branchName=master&jobName=Linux%20Build)](https://dev.azure.com/debauchee/Barrier/_build/latest?definitionId=1&branchName=master)|
+|Mac            |[![Build Status](https://dev.azure.com/debauchee/Barrier/_apis/build/status/debauchee.barrier?branchName=master&jobName=Mac%20Build)](https://dev.azure.com/debauchee/Barrier/_build/latest?definitionId=1&branchName=master)|
+|Windows Debug  |[![Build Status](https://dev.azure.com/debauchee/Barrier/_apis/build/status/debauchee.barrier?branchName=master&jobName=Windows%20Build&configuration=Windows%20Build%20Debug)](https://dev.azure.com/debauchee/Barrier/_build/latest?definitionId=1&branchName=master)|
+|Windows Release|[![Build Status](https://dev.azure.com/debauchee/Barrier/_apis/build/status/debauchee.barrier?branchName=master&jobName=Windows%20Build&configuration=Windows%20Build%20Release%20with%20Release%20Installer)](https://dev.azure.com/debauchee/Barrier/_build/latest?definitionId=1&branchName=master)|
+|Snap           |[![Snap Status](https://build.snapcraft.io/badge/debauchee/barrier.svg)](https://build.snapcraft.io/user/debauchee/barrier)|
+
+
+### Build from source
 
 ```bash
 $ git clone https://github.com/adamyordan/laplace.git
@@ -54,7 +70,7 @@ $ cd laplace && go build -o laplace main.go
 $ ./laplace --help
 ```
 
-OR, pull the pre-built docker image
+### OR, pull the pre-built docker image (Barrier KVM not supported yet) 
 
 ```bash
 $ docker pull adamyordan/laplace
@@ -80,10 +96,11 @@ $ ./laplace --help
 ```
 
 By default, you can run the executable without any argument to listen to TLS port 443.
-A self-signed certificate files are provided to ease up development.
+A self-signed certificate files are provided to ease up development. If you want to run 
+with barrier KVM. Run as non-root. 
 
 ```bash
-$ ./laplace
+$ ./laplace -tls
 2020/03/25 01:01:10 Listening on TLS: 0.0.0.0:443
 ```
 
