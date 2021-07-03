@@ -21,7 +21,6 @@ There are already possible solutions to share your computer screen, e.g. TeamVie
 But most of them require installations of software or plugins.
 What Laplace provides is a simple solution to this problem.
 For users wanting to share their screen, all they need to do is to open a website page with their browsers, clicking some buttons, then share some session ID with their peers.
-No installation or registration required.
 
 #### Solving the latency problem
 
@@ -46,15 +45,37 @@ The server is only needed for serving frontends and for WebRTC signaling.
 
 ## Installation
 
-Build from source
+
+### Installation required to share keyboard and mouse
+To do this we ensure that the client either has has a IPV6 
+address or a public IPV4 address. 
+We use the use the popular open repository known as [Barrier KVM](https://github.com/debauchee/barrier). 
+
+#### What is Barrier kvm?
+
+Barrier is software that mimics the functionality of a KVM switch, which historically would allow you to use a single keyboard and mouse to control multiple computers by physically turning a dial on the box to switch the machine you're controlling at any given moment. Barrier does this in software, allowing you to tell it which machine to control by moving your mouse to the edge of the screen, or by using a keypress to switch focus to a different system.
+
+#### Barrier KVM build status and links to install 
+|Platform       |Build Status|
+|            --:|:--         |
+|Linux          |[![Build Status](https://dev.azure.com/debauchee/Barrier/_apis/build/status/debauchee.barrier?branchName=master&jobName=Linux%20Build)](https://dev.azure.com/debauchee/Barrier/_build/latest?definitionId=1&branchName=master)|
+|Mac            |[![Build Status](https://dev.azure.com/debauchee/Barrier/_apis/build/status/debauchee.barrier?branchName=master&jobName=Mac%20Build)](https://dev.azure.com/debauchee/Barrier/_build/latest?definitionId=1&branchName=master)|
+|Windows Debug  |[![Build Status](https://dev.azure.com/debauchee/Barrier/_apis/build/status/debauchee.barrier?branchName=master&jobName=Windows%20Build&configuration=Windows%20Build%20Debug)](https://dev.azure.com/debauchee/Barrier/_build/latest?definitionId=1&branchName=master)|
+|Windows Release|[![Build Status](https://dev.azure.com/debauchee/Barrier/_apis/build/status/debauchee.barrier?branchName=master&jobName=Windows%20Build&configuration=Windows%20Build%20Release%20with%20Release%20Installer)](https://dev.azure.com/debauchee/Barrier/_build/latest?definitionId=1&branchName=master)|
+|Snap           |[![Snap Status](https://build.snapcraft.io/badge/debauchee/barrier.svg)](https://build.snapcraft.io/user/debauchee/barrier)|
+
+
+### Build from source
 
 ```bash
 $ git clone https://github.com/adamyordan/laplace.git
 $ cd laplace && go build -o laplace main.go
+$ export LAPLACE = $PATH
 $ ./laplace --help
+$ ./laplace -setconfig 
 ```
 
-OR, pull the pre-built docker image
+### OR, pull the pre-built docker image (Barrier KVM not supported yet) 
 
 ```bash
 $ docker pull adamyordan/laplace
@@ -70,20 +91,23 @@ Note that you sometimes need to run HTTPs in order for browser to connect to web
 ```bash
 $ ./laplace --help
   -addr string
-        Listen address (default "0.0.0.0:443")
+    	Listen address (default "0.0.0.0:443")
   -certFile string
-        TLS cert file (default "files/server.crt")
+    	TLS cert file (default "files/server.crt")
   -keyFile string
-        TLS key file (default "files/server.key")
+    	TLS key file (default "files/server.key")
+  -setconfig
+    	Generates a config file
   -tls
-        Use TLS (default true)
+    	Use TLS
 ```
 
 By default, you can run the executable without any argument to listen to TLS port 443.
-A self-signed certificate files are provided to ease up development.
+A self-signed certificate files are provided to ease up development. If you want to run 
+with barrier KVM. Run as non-root. 
 
 ```bash
-$ ./laplace
+$ ./laplace -tls
 2020/03/25 01:01:10 Listening on TLS: 0.0.0.0:443
 ```
 

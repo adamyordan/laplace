@@ -31,6 +31,7 @@
             where you can share your screen with your peers.
             A RoomID will be generated, and you can share the RoomID to your peers.
         </p>
+
         <button type="button" class="btn btn-dark btn-block" id="btnStream">Start sharing</button>
 
         <div class="separator"></div>
@@ -43,6 +44,18 @@
         <form id="joinForm">
             <div class="form-group">
                 <input id="inputRoomID" type="text" class="form-control form-control-lg text-center" placeholder="Enter room ID" required>
+            </div>
+            <h4>Connect to Barrier KVM (Beta)</h4>
+            <p class="help-text">
+                This is a feature is still on beta testing. This feature will ensure that you can share the keyboard
+                and mouse of the server machine.
+                <br>
+                <span class="text-success font-weight-bold"> Note: This only works if the laplace server has barrierc installed and the room name you are connecting
+                    too belongs to the server.</span>
+            </p>
+            <h6>Host Name: <span id="hostname"> Not detected  </span></h6>
+            <div class="form-group">
+                <input id="barrierIP" type="text" class="form-control form-control-lg text-center" placeholder="IPV6 or IPV4 address">
             </div>
             <button type="submit" class="btn btn-dark btn-block" value="submit">Join</button>
         </form>

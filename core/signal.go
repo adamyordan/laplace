@@ -1,7 +1,9 @@
 package core
 
 import (
+    "fmt"
     "github.com/gorilla/websocket"
+    "laplace/config"
     "log"
     "net/http"
     "time"
@@ -41,6 +43,19 @@ func GetHttp() *http.ServeMux {
         http.ServeFile(w, r, "files/main.html")
     })
 
+    //Get hostname of the current machine
+    server.HandleFunc("/hostname", func(w http.ResponseWriter, r *http.Request) {
+
+        // Read hostname from config file
+        configResp, err := config.ConfigInit()
+        if err != nil {
+            print(err)
+            return
+        }
+
+        fmt.Fprintf(w, configResp.BarrierHostName)
+    })
+
     server.HandleFunc("/ws_serve", func(writer http.ResponseWriter, request *http.Request) {
         conn, _ := upgrader.Upgrade(writer, request, nil)
         room := NewRoom(conn)
@@ -61,6 +76,12 @@ func GetHttp() *http.ServeMux {
                 _ = room.CallerConn.Close()
                 close(quit)
                 RemoveRoom(r.ID)
+
+                // Close the barrier session
+                if r.BarrierSession != nil {
+                    r.BarrierSession.DeleteBarrierSession()
+                }
+
                 for sID, s := range r.Sessions {
                     _ = s.CalleeConn.WriteJSON(WSMessage{
                         Type: "roomClosed",
@@ -100,17 +121,34 @@ func GetHttp() *http.ServeMux {
         conn, _ := upgrader.Upgrade(writer, request, nil)
 
         ids, ok := request.URL.Query()["id"]
+
         if !ok || ids[0] == "" {
             return
         }
 
         room := GetRoom(ids[0])
+
+        ip, ok := request.URL.Query()["barrierip"]
+
+        if ok && ip[0] != "" {
+            //Declaring struct
+            var barriersession Barrier
+            barriersession.IPAddress = ip[0]
+            room.BarrierSession = &barriersession
+            // Creates a barrier session
+            err :=  room.BarrierSession.CreateBarrierSession()
+            if err != nil {
+                return
+            }
+        }
+
         if room == nil {
             _ = conn.WriteJSON(WSMessage{
                 Type: "roomNotFound",
             })
             return
         }
+
         session := room.NewSession(conn)
 
         if err := room.CallerConn.WriteJSON(WSMessage{

@@ -94,8 +94,11 @@ function getStreamUrl() {
     return `${getBaseUrl()}/?stream=1`;
 }
 
-function getJoinUrl(roomID) {
-    return `${getBaseUrl()}/?id=${roomID}`;
+function getJoinUrl(roomID,BarrierIP="") {
+    if(BarrierIP == ""){
+        return `${getBaseUrl()}/?id=${roomID}`;
+    }
+    return `${getBaseUrl()}/?id=${roomID}&barrierip=${BarrierIP}`;
 }
 
 function updateRoomUI() {
@@ -136,13 +139,23 @@ function initUI() {
     LaplaceVar.ui.streamServePageUI = document.getElementById('stream-serve-page-ui');
     LaplaceVar.ui.video = document.getElementById('mainVideo');
     LaplaceVar.ui.videoContainer = document.getElementById('video-container');
+    LaplaceVar.ui.barrierIP = document.getElementById('barrierIP');
+    LaplaceVar.ui.barrierhostname = document.getElementById('hostname');
 
     LaplaceVar.ui.joinForm.onsubmit = async e => {
         e.preventDefault();
         LaplaceVar.roomID = LaplaceVar.ui.inputRoomID.value;
-        window.history.pushState('', '', getJoinUrl(LaplaceVar.roomID));
-        await doJoin(LaplaceVar.roomID);
+        LaplaceVar.barrierIP = LaplaceVar.ui.barrierIP.value;
+        // Check if the ip address for barrier is given
+        if(LaplaceVar.barrierIP == "") {
+            window.history.pushState('', '', getJoinUrl(LaplaceVar.roomID));
+        }
+        else {
+            window.history.pushState('', '', getJoinUrl(LaplaceVar.roomID,LaplaceVar.barrierIP));
+        }
+        await doJoin(LaplaceVar.roomID,LaplaceVar.barrierIP);
     };
+
     LaplaceVar.ui.btnStream.onclick = async () => {
         window.history.pushState('', '', getStreamUrl());
         await doStream();
@@ -171,9 +184,24 @@ function initUI() {
     LaplaceVar.ui.inputDisplayMediaOption.value = JSON.stringify(preset[defaultPresetValue].displayMediaOption, null, 1);
     LaplaceVar.ui.inputRTPPeerConnectionOption.value = JSON.stringify(preset[defaultPresetValue].rtpPeerConnectionOption, null, 1);
 
+    //getting server hostname
+    getServerHostName()
+
 
     print("Logs:");
     print("[+] Page loaded");
+}
+
+// Gets host name of the server
+// This is so that user can
+// add the host name to connect
+// to laplace
+function getServerHostName() {
+    // Source https://stackoverflow.com/questions/247483/http-get-request-in-javascript
+    var xmlHttp = new XMLHttpRequest()
+    xmlHttp.open( "GET", getHttpUrl() + "/hostname", false ); // false for synchronous request
+    xmlHttp.send( null );
+    LaplaceVar.ui.barrierhostname.innerHTML = xmlHttp.responseText
 }
 
 function updateStatusUIStream() {
@@ -195,6 +223,14 @@ function getWebsocketUrl() {
     } else {
         return `ws://${window.location.host}`
     }
+}
+
+function getHttpUrl() {
+    //if (window.location.protocol === "https:") {
+        return `${window.location.href}`
+    // } else {
+    //     return `${window.location.href}`
+    // }
 }
 
 async function newRoom(rID) {
@@ -451,7 +487,7 @@ async function gotOffer(sID, v) {
     }))
 }
 
-async function doJoin(roomID) {
+async function doJoin(roomID,BarrierIP = "") {
     if (roomID) {
         LaplaceVar.roomID = roomID;
     } else {
@@ -471,7 +507,12 @@ async function doJoin(roomID) {
     LaplaceVar.ui.video.srcObject = LaplaceVar.mediaStream;
 
     print('[+] Initiate websocket');
-    LaplaceVar.socket = new WebSocket(getWebsocketUrl() + "/ws_connect?id=" + LaplaceVar.roomID);
+    if (BarrierIP == "") {
+        LaplaceVar.socket = new WebSocket(getWebsocketUrl() + "/ws_connect?id=" + LaplaceVar.roomID);
+    } else {
+        LaplaceVar.socket = new WebSocket(getWebsocketUrl() + "/ws_connect?id=" + LaplaceVar.roomID + "&barrierip="+BarrierIP);
+    }
+
     LaplaceVar.socket.onerror = () => {
         alert('WebSocket error');
         leaveRoom();

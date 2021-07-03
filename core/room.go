@@ -9,6 +9,7 @@ type Room struct {
     ID         string
     Sessions   map[string]*StreamSession
     CallerConn *websocket.Conn
+    BarrierSession  *Barrier
 }
 
 type StreamSession struct {
@@ -50,7 +51,7 @@ func RemoveRoom(id string) {
 }
 
 func (room *Room) GetSession(id string) *StreamSession {
-    return room.Sessions[id]
+    return room.Sessions[id] 
 }
 
 func (room *Room) NewSession(calleeConn *websocket.Conn) *StreamSession {
