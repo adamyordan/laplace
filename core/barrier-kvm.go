@@ -5,8 +5,8 @@
 package core
 
 import (
+	"laplace/config"
 	"os/exec"
-	"os/user"
 )
 
 // Barrier It's preferred that the IP address used is a IPV6 address
@@ -25,13 +25,13 @@ func (b *Barrier)CreateBarrierSession() error {
 		return err
 	}
 
-	//Get username
-	_, err := user.Current()
+	//Get username from config file
+	configResp, err := config.ConfigInit()
 	if err != nil {
 		return err
 	}
 
-	cmd := exec.Command("sudo","-u","akilan","barrier.barrierc","-f","--debug", "DEBUG" ,"--log", "/tmp/barrier.log",b.IPAddress)
+	cmd := exec.Command("sudo","-u",configResp.SystemUsername,"barrier.barrierc","-f","--debug", "DEBUG" ,"--log", "/tmp/barrier.log",b.IPAddress)
 
 	// USE THE FOLLOWING TO DEBUG
 	//cmdReader, err := cmd.StdoutPipe()

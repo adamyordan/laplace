@@ -3,9 +3,9 @@ package core
 import (
     "fmt"
     "github.com/gorilla/websocket"
+    "laplace/config"
     "log"
     "net/http"
-    "os"
     "time"
 )
 
@@ -45,12 +45,15 @@ func GetHttp() *http.ServeMux {
 
     //Get hostname of the current machine
     server.HandleFunc("/hostname", func(w http.ResponseWriter, r *http.Request) {
-        name, err := os.Hostname()
+
+        // Read hostname from config file
+        configResp, err := config.ConfigInit()
         if err != nil {
-            log.Println("Host detection error: ", err)
+            print(err)
             return
         }
-        fmt.Fprintf(w, name)
+
+        fmt.Fprintf(w, configResp.BarrierHostName)
     })
 
     server.HandleFunc("/ws_serve", func(writer http.ResponseWriter, request *http.Request) {
