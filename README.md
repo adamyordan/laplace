@@ -21,7 +21,6 @@ There are already possible solutions to share your computer screen, e.g. TeamVie
 But most of them require installations of software or plugins.
 What Laplace provides is a simple solution to this problem.
 For users wanting to share their screen, all they need to do is to open a website page with their browsers, clicking some buttons, then share some session ID with their peers.
-No installation or registration required.
 
 #### Solving the latency problem
 
