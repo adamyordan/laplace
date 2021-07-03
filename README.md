@@ -71,7 +71,9 @@ Barrier is software that mimics the functionality of a KVM switch, which histori
 ```bash
 $ git clone https://github.com/adamyordan/laplace.git
 $ cd laplace && go build -o laplace main.go
+$ export LAPLACE = $PATH
 $ ./laplace --help
+$ ./laplace -setconfig 
 ```
 
 ### OR, pull the pre-built docker image (Barrier KVM not supported yet) 
@@ -90,13 +92,15 @@ Note that you sometimes need to run HTTPs in order for browser to connect to web
 ```bash
 $ ./laplace --help
   -addr string
-        Listen address (default "0.0.0.0:443")
+    	Listen address (default "0.0.0.0:443")
   -certFile string
-        TLS cert file (default "files/server.crt")
+    	TLS cert file (default "files/server.crt")
   -keyFile string
-        TLS key file (default "files/server.key")
+    	TLS key file (default "files/server.key")
+  -setconfig
+    	Generates a config file
   -tls
-        Use TLS (default true)
+    	Use TLS
 ```
 
 By default, you can run the executable without any argument to listen to TLS port 443.
