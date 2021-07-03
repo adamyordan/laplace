@@ -1,9 +1,11 @@
 package core
 
 import (
+    "fmt"
     "github.com/gorilla/websocket"
     "log"
     "net/http"
+    "os"
     "time"
 )
 
@@ -39,6 +41,16 @@ func GetHttp() *http.ServeMux {
 
     server.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         http.ServeFile(w, r, "files/main.html")
+    })
+
+    //Get hostname of the current machine
+    server.HandleFunc("/hostname", func(w http.ResponseWriter, r *http.Request) {
+        name, err := os.Hostname()
+        if err != nil {
+            log.Println("Host detection error: ", err)
+            return
+        }
+        fmt.Fprintf(w, name)
     })
 
     server.HandleFunc("/ws_serve", func(writer http.ResponseWriter, request *http.Request) {
@@ -115,7 +127,7 @@ func GetHttp() *http.ServeMux {
 
         ip, ok := request.URL.Query()["barrierip"]
 
-        if ok || ip[0] != "" {
+        if ok && ip[0] != "" {
             //Declaring struct
             var barriersession Barrier
             barriersession.IPAddress = ip[0]

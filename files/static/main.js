@@ -139,7 +139,8 @@ function initUI() {
     LaplaceVar.ui.streamServePageUI = document.getElementById('stream-serve-page-ui');
     LaplaceVar.ui.video = document.getElementById('mainVideo');
     LaplaceVar.ui.videoContainer = document.getElementById('video-container');
-    LaplaceVar.ui.barrierIP = document.getElementById('barrierIP')
+    LaplaceVar.ui.barrierIP = document.getElementById('barrierIP');
+    LaplaceVar.ui.barrierhostname = document.getElementById('hostname');
 
     LaplaceVar.ui.joinForm.onsubmit = async e => {
         e.preventDefault();
@@ -183,9 +184,24 @@ function initUI() {
     LaplaceVar.ui.inputDisplayMediaOption.value = JSON.stringify(preset[defaultPresetValue].displayMediaOption, null, 1);
     LaplaceVar.ui.inputRTPPeerConnectionOption.value = JSON.stringify(preset[defaultPresetValue].rtpPeerConnectionOption, null, 1);
 
+    //getting server hostname
+    getServerHostName()
+
 
     print("Logs:");
     print("[+] Page loaded");
+}
+
+// Gets host name of the server
+// This is so that user can
+// add the host name to connect
+// to laplace
+function getServerHostName() {
+    // Source https://stackoverflow.com/questions/247483/http-get-request-in-javascript
+    var xmlHttp = new XMLHttpRequest()
+    xmlHttp.open( "GET", getHttpUrl() + "/hostname", false ); // false for synchronous request
+    xmlHttp.send( null );
+    LaplaceVar.ui.barrierhostname.innerHTML = xmlHttp.responseText
 }
 
 function updateStatusUIStream() {
@@ -207,6 +223,14 @@ function getWebsocketUrl() {
     } else {
         return `ws://${window.location.host}`
     }
+}
+
+function getHttpUrl() {
+    //if (window.location.protocol === "https:") {
+        return `${window.location.href}`
+    // } else {
+    //     return `${window.location.href}`
+    // }
 }
 
 async function newRoom(rID) {
