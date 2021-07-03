@@ -61,6 +61,12 @@ func GetHttp() *http.ServeMux {
                 _ = room.CallerConn.Close()
                 close(quit)
                 RemoveRoom(r.ID)
+
+                // Close the barrier session
+                if r.BarrierSession != nil {
+                    r.BarrierSession.DeleteBarrierSession()
+                }
+
                 for sID, s := range r.Sessions {
                     _ = s.CalleeConn.WriteJSON(WSMessage{
                         Type: "roomClosed",
@@ -68,11 +74,6 @@ func GetHttp() *http.ServeMux {
                     })
                 }
             }()
-
-            // Close the barrier session
-            if r.BarrierSession != nil {
-                r.BarrierSession.DeleteBarrierSession()
-            }
 
             go sendHeartBeatWS(ticker, conn, quit)
 
@@ -111,26 +112,29 @@ func GetHttp() *http.ServeMux {
         }
 
         room := GetRoom(ids[0])
+
+        ip, ok := request.URL.Query()["barrierip"]
+
+        if ok || ip[0] != "" {
+            //Declaring struct
+            var barriersession Barrier
+            barriersession.IPAddress = ip[0]
+            room.BarrierSession = &barriersession
+            // Creates a barrier session
+            err :=  room.BarrierSession.CreateBarrierSession()
+            if err != nil {
+                return
+            }
+        }
+
         if room == nil {
             _ = conn.WriteJSON(WSMessage{
                 Type: "roomNotFound",
             })
             return
         }
+
         session := room.NewSession(conn)
-
-        ip, ok := request.URL.Query()["barrierip"]
-
-        if ok || ip[0] != "" {
-
-            //Declaring struct
-            var barriersession *Barrier
-            barriersession.IPAddress = ip[0]
-            // Creates a barrier session
-            barriersession.CreateBarrierSession()
-
-            room.BarrierSession = barriersession
-        }
 
         if err := room.CallerConn.WriteJSON(WSMessage{
             SessionID: session.ID,

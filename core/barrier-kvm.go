@@ -6,6 +6,7 @@ package core
 
 import (
 	"os/exec"
+	"os/user"
 )
 
 // Barrier It's preferred that the IP address used is a IPV6 address
@@ -19,18 +20,49 @@ type Barrier struct {
 // CreateBarrierSession Command to run "barrier.barrierc --debug INFO -f 192.168.0.175"
 func (b *Barrier)CreateBarrierSession() error {
 	//Checks if barrier client exists
+
 	if err := DetectBarrier(); err != nil {
 		return err
 	}
 
-	cmd := exec.Command("barrier.barrierc" ,b.IPAddress)
-	if err := cmd.Start(); err != nil {
-		_, err := cmd.StderrPipe()
-		if err != nil {
-			return err
-		}
-
+	//Get username
+	_, err := user.Current()
+	if err != nil {
+		return err
 	}
+
+	cmd := exec.Command("sudo","-u","akilan","barrier.barrierc","-f","--debug", "DEBUG" ,"--log", "/tmp/barrier.log",b.IPAddress)
+
+	// USE THE FOLLOWING TO DEBUG
+	//cmdReader, err := cmd.StdoutPipe()
+	//if err != nil {
+	//	fmt.Fprintln(os.Stderr, "Error creating StdoutPipe for Cmd", err)
+	//	return
+	//}
+	//
+	//// the following is used to print output of the command
+	//// as it makes progress...
+	//scanner := bufio.NewScanner(cmdReader)
+	//go func() {
+	//	for scanner.Scan() {
+	//		fmt.Printf("%s\n", scanner.Text())
+	//		//
+	//		// TODO:
+	//		// send output to server
+	//	}
+	//}()
+	//
+	//if err := cmd.Start(); err != nil {
+	//	return err
+	//}
+
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	println(cmd.Path)
+
+
 	// Saves the state of the command in the struct
 	b.Process = cmd
 	return nil
