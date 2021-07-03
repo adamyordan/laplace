@@ -49,7 +49,7 @@ The server is only needed for serving frontends and for WebRTC signaling.
 ### Installation required to share keyboard and mouse
 To do this we ensure that the client either has has a IPV6 
 address or a public IPV4 address. 
-We use the use the popular open repository known as (Barrier KVM)[https://github.com/debauchee/barrier]. 
+We use the use the popular open repository known as [Barrier KVM](https://github.com/debauchee/barrier). 
 
 #### What is Barrier kvm?
 
